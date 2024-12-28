@@ -22,6 +22,7 @@
         "react-razorpay": "^3.0.1",
         "react-router-dom": "^6.22.3",
         "sonner": "^1.7.0",
+        "vike": "^0.4.211",
         "zustand": "^4.5.2"
     },
     "devDependencies": {
