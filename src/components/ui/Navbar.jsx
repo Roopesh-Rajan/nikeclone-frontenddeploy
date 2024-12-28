@@ -1,10 +1,11 @@
+
 import React, { useState } from "react";
 import { ShoppingBag, Menu, Search } from "lucide-react";
-import { useAuthStore } from "../../store/useAuthStore"; // Adjust the import path based on your project structure
-import { Link, useNavigate } from 'react-router-dom';
-import NikeLogo from '../../assets/favicon.ico'
+import { useAuthStore } from "../../store/useAuthStore"; // Adjust the import path
+import { Link, useNavigate } from "react-router-dom";
+import NikeLogo from "../../assets/favicon.ico";
 
-// Custom Button Component
+
 const Button = ({
   children,
   variant = "default",
@@ -14,28 +15,24 @@ const Button = ({
   href,
   ...props
 }) => {
-  const baseStyles =
-    "inline-flex items-center justify-center rounded-full transition-colors";
-
+  const baseStyles = "inline-flex items-center justify-center rounded-full transition-colors";
   const variantStyles = {
     default: "bg-black text-white hover:bg-gray-800",
     secondary: "bg-gray-100 text-gray-600 hover:bg-gray-200",
     outline: "bg-transparent border border-gray-300 hover:bg-gray-100",
   };
-
   const sizeStyles = {
     default: "px-4 py-2 text-sm",
     icon: "w-10 h-10 p-2",
     sm: "px-3 py-1 text-xs",
   };
-
   const combinedClassName = `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
 
   if (href) {
     return (
-      <a href={href} className={combinedClassName} {...props}>
+      <Link to={href} className={combinedClassName} {...props}>
         {children}
-      </a>
+      </Link>
     );
   }
 
@@ -47,44 +44,43 @@ const Button = ({
 };
 
 const Navbar = () => {
-  const { token, logout } = useAuthStore(); // Access auth state from zustand store
+  const { token, logout } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-
   const handleLogout = () => {
-    logout(); // Log out using zustand store
-   navigate('/')
+    logout();
+    navigate("/");
   };
 
-  const toggleMobileMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${searchQuery}`);
+    }
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white z-50 shadow-sm">
-      <nav className="flex items-center justify-around max-w-7xl mx-auto px-4 py-4">
+      <nav className="flex items-center justify-between max-w-7xl mx-auto px-4 py-4">
         {/* Logo and Navigation Links */}
         <div className="flex items-center gap-12">
-          <Link to="/">
-          <div className="text-2xl font-bold" aria-label="Nike Homepage">
-          <img src={NikeLogo} alt="Nike" />
-          </div>
+          <Link to="/" className="flex items-center gap-2 text-2xl font-bold">
+            <img src={NikeLogo} alt="Nike Logo - Homepage" />
           </Link>
-          <div className="hidden md:flex items-center justify-between gap-8">
-          <a href="/products" className="hover:text-gray-600 transition-colors">
-             Products
-            </a>
-            <a href="/men" className="hover:text-gray-600 transition-colors">
+          <div className="hidden md:flex items-center gap-8">
+            <Link to="/products" className="hover:text-gray-600 transition-colors">
+              Products
+            </Link>
+            <Link to="/men" className="hover:text-gray-600 transition-colors">
               Men
-            </a>
-            <a href="/women" className="hover:text-gray-600 transition-colors">
+            </Link>
+            <Link to="/women" className="hover:text-gray-600 transition-colors">
               Women
-            </a>
-            <a href="/kids" className="hover:text-gray-600 transition-colors">
+            </Link>
+            <Link to="/kids" className="hover:text-gray-600 transition-colors">
               Kids
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -96,6 +92,9 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="bg-transparent outline-none placeholder:text-gray-500 text-sm w-32"
               aria-label="Search for products"
             />
@@ -114,13 +113,10 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate("/register")} // Navigates to the Register page
-                >
+                <Button variant="secondary" onClick={() => navigate("/register")}>
                   Join Us
                 </Button>
-                <Button variant="default" onClick={() => navigate("/login")}> {/* Navigates to the Login page */}
+                <Button variant="default" onClick={() => navigate("/login")}>
                   Login
                 </Button>
               </>
@@ -128,8 +124,12 @@ const Navbar = () => {
           </div>
 
           {/* Cart Button */}
-          <Button variant="outline" size="icon" aria-label="View Cart"
-          onClick={()=>navigate("/cart")}>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="View Cart"
+            onClick={() => navigate("/cart")}
+          >
             <ShoppingBag className="w-5 h-5" />
           </Button>
 
@@ -138,13 +138,33 @@ const Navbar = () => {
             variant="outline"
             size="icon"
             className="md:hidden"
-            onClick={toggleMobileMenu}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Open Menu"
           >
             <Menu className="w-5 h-5" />
           </Button>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden">
+          <nav className="flex flex-col items-start p-4 gap-4">
+            <Link to="/products" className="hover:text-gray-600" onClick={() => setIsMenuOpen(false)}>
+              Products
+            </Link>
+            <Link to="/men" className="hover:text-gray-600" onClick={() => setIsMenuOpen(false)}>
+              Men
+            </Link>
+            <Link to="/women" className="hover:text-gray-600" onClick={() => setIsMenuOpen(false)}>
+              Women
+            </Link>
+            <Link to="/kids" className="hover:text-gray-600" onClick={() => setIsMenuOpen(false)}>
+              Kids
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
